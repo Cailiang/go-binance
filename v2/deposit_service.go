@@ -9,19 +9,40 @@ import (
 //
 // See https://binance-docs.github.io/apidocs/spot/en/#deposit-history-user_data
 type ListDepositsService struct {
-	c         *Client
-	coin      *string
-	status    *int
-	startTime *int64
-	endTime   *int64
-	offset    *int
-	limit     *int
-	txId      *string
+	c             *Client
+	coin          *string
+	status        *int
+	startTime     *int64
+	endTime       *int64
+	offset        *int
+	limit         *int
+	txId          *string
+	includeSource *bool
+	recvWindow    *int64
+	timestamp     *int64
 }
 
 // Coin sets the coin parameter.
 func (s *ListDepositsService) Coin(coin string) *ListDepositsService {
 	s.coin = &coin
+	return s
+}
+
+// includeSource sets the includeSource parameter.
+func (s *ListDepositsService) IncludeSource(includeSource bool) *ListDepositsService {
+	s.includeSource = &includeSource
+	return s
+}
+
+// Timestamp sets the timestamp parameter.
+func (s *ListDepositsService) Timestamp(timestamp int64) *ListDepositsService {
+	s.timestamp = &timestamp
+	return s
+}
+
+// RecvWindow sets the recvWindow parameter.
+func (s *ListDepositsService) RecvWindow(recvWindow int64) *ListDepositsService {
+	s.recvWindow = &recvWindow
 	return s
 }
 
@@ -90,6 +111,15 @@ func (s *ListDepositsService) Do(ctx context.Context) (res []*Deposit, err error
 	if s.txId != nil {
 		r.setParam("txId", *s.txId)
 	}
+	if s.includeSource != nil {
+		r.setParam("includeSource", *s.includeSource)
+	}
+	if s.recvWindow != nil {
+		r.setParam("recvWindow", *s.recvWindow)
+	}
+	if s.timestamp != nil {
+		r.setParam("timestamp", *s.timestamp)
+	}
 
 	data, err := s.c.callAPI(ctx, r)
 	if err != nil {
@@ -116,6 +146,7 @@ type Deposit struct {
 	TransferType  int64  `json:"transferType"`
 	UnlockConfirm int64  `json:"unlockConfirm"`
 	ConfirmTimes  string `json:"confirmTimes"`
+	WalletType    int    `json:"walletType"`
 }
 
 // GetDepositsAddressService retrieves the details of a deposit address.
